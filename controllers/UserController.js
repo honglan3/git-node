@@ -3,11 +3,12 @@ var router = express.Router();
 var User = require("../models/User");
 var Project = require("../models/Project");
 var Commit = require('../models/Commit');
+var File = require("../models/File");
 
 module.exports = {
     
     "addUser" : (user,callback) => {
-        var User = new User(user);
+        var user = new User(user);
         user.save((err) => {
             if(err)
                return callback(null,err);
@@ -24,7 +25,18 @@ module.exports = {
     },
 
     "getCommits" : (userId,projectId,callback) => {
-       // Commit.find({})
+       File.find({ 'project' : projectId},(err,files) => {
+           if(err)
+                return callback(null,err);
+           var fileIdList = files.map((item) => {
+               return item['_id'];
+           })
+           Commit.find({ 'user' : userId , 'file' : { $in : fileIdList }},(err,commits) => {
+                if(err)
+                    return callback(null,err);
+                return callback(commits,err);
+           });
+       });
     },
 
     "getUser" : (emailId,callback) => {
@@ -35,11 +47,21 @@ module.exports = {
         });
     },
 
-    "addUserToProjects" : (projectId,userId) => {
+    "addUserToProject" : (projectId,userId,callback) => {
+        console.log("project = ",projectId);
+        console.log("user = ",userId);
         Project.update({ "_id" : projectId }, { $push: { "collaborators" : userId } },(err,project) => {
-            if(err,project)
+            if(err)
                 return callback(null,err);
             return callback(project,null);
+        });
+    },
+
+    "getUserByUserId" : (userId,callback) => {
+        User.findOne({ "_id" : userId },(err,user) => {
+            if(err)
+                return callback(null,err);
+            return callback(user,null);
         });
     }
 };

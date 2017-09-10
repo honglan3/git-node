@@ -1,7 +1,7 @@
 {
   "name": "git-node",
   "version": "0.0.0",
-  "description": "Simple implementation of github like source code management.",
+  "description": "Implementation of github like source code management.",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"

@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var Schema = mongooose.Schema;
+var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
     "email" : {
@@ -19,8 +19,29 @@ var UserSchema = new Schema({
     "pic_url" : {
         type : String,
         required : false
+    },
+    "created_date" : {
+        type : Date,
+        required : false
+    },
+    "modified_date" : {
+        type : Date,
+        required : false
     }
 });
+
+UserSchema.pre('save',function(next){
+    var date = new Date();
+    this["created_date"] = date;
+    this["modified_date"] = date;
+    next();
+});
+
+UserSchema.pre('update',function(next){
+    var date = new Date();
+    this["modified_date"] = date;
+    next();
+})
 
 var User = mongoose.model("User",UserSchema);
 

@@ -1,17 +1,45 @@
 var express = require('express');
 var router = express.Router();
+var controller = require("../controllers/UserController");
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/:emailId',function(req,res,next){
+  controller.getUser(req.params.emailId,(user,err) => {
+    if(err)
+      return res.json({'error' : err.toString() });
+    return res.json(user);
+  });
 });
 
-router.get('/user',function(req,res,next){
-
+router.get('/userId/:userId',function(req,res,next){
+  controller.getUserByUserId(req.params.userId,(user,err) => {
+    if(err)
+      return res.json({'error' : err.toString() });
+    return res.json(user);
+  });
 });
 
-router.post('/user',function(req,res,next){
-  
+router.post('/',function(req,res,next){
+  controller.addUser(req.body,(user,err) => {
+    if(err)
+      return res.json({'error' : err.toString() });
+    return res.json(user);
+  });
+});
+
+router.get('/:userId/projects',function(req,res,next){
+  controller.getProjects(req.params.userId,(projects,err) => {
+    if(err)
+      return res.json({'error' : err.toString() });
+    return res.json(projects);
+  });
+});
+
+router.put('/addToProject/:projectId/:userId',function(req,res,next){
+  controller.addUserToProject(req.params.projectId,req.params.userId,(project,err) => {
+    if(err)
+      return res.json({'error' : err.toString() });
+    return res.json(project);
+  });
 });
 
 module.exports = router;

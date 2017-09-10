@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var Schema = mongooose.Schema;
+var Schema = mongoose.Schema;
 
 var CommitSchema = new Schema({
     "message" : {
@@ -21,13 +21,13 @@ var CommitSchema = new Schema({
         ref : 'User',
         required : true
     },
+    "content" : {
+        type : String,
+        required :  false
+    },
     "created_date" : {
         type : Date,
         required : false
-    },
-    "location" : {
-        type : String,
-        required : true
     },
     "modified_date" : {
         type : Date,

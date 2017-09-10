@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
-var Schema = mongooose.Schema;
+var Schema = mongoose.Schema;
 
-var FileSchema = new Schema({
+var ProjectSchema = new Schema({
     "name" : {
         type : String,
         required : true
@@ -10,17 +10,33 @@ var FileSchema = new Schema({
         type: Schema.Types.ObjectId, 
         ref : 'User'
     },
-    "project_entry_point" : {
-        type : Schema.Types.ObjectId,
-        ref : 'File'
-    },
     "collaborators" : [{ 
         type : Schema.Types.ObjectId,
         ref : 'User'
-    }]
+    }],
+    "created_date" : {
+        type : Date,
+        required : false
+    },
+    "modified_date" : {
+        type : Date,
+        required : false
+    }
 });
 
+ProjectSchema.pre('save',function(next){
+    var date = new Date();
+    this["created_date"] = date;
+    this["modified_date"] = date;
+    next();
+});
 
-var File = mongoose.model("File",FileSchema);
+ProjectSchema.pre('update',function(next){
+    var date = new Date();
+    this["modified_date"] = date;
+    next();
+})
 
-module.exports = File;
+var Project = mongoose.model("Project",ProjectSchema);
+
+module.exports = Project;

@@ -1,0 +1,88 @@
+<div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Home</li>
+            <li class="breadcrumb-item">Project</li>
+            <li class="breadcrumb-item active">File</li>
+        </ol>
+    </div>
+    <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Commit History</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <center><b>Filter By :</b></center>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="users">Users</label>
+                        <select class="form-control" name="users" id="users">
+                            <option>All Users</option>
+                            <option>Only Me</option>
+                            <option>User - 1</option>
+                            <option>User - 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="from">From</label>
+                        <input type="date" name="from" id="from" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="to">To</label>
+                        <input type="date" name="to" id="to" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Commits</th>
+                                <th>Created On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>Jacob</td>
+                                <td>Thornton</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>Larry</td>
+                                <td>the Bird</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <div ui-ace="{
+                        useWrapMode : true,
+                        showGutter: false,
+                        theme:'twilight',
+                        mode: 'java',
+                        firstLineNumber: 5,
+                        onLoad: aceLoaded,
+                        onChange: aceChanged
+                      }"></div>
+                    <div class="row">
+                        <div class="col-md-6"><center><button type="button" class="btn btn-primary">View Commit Graph</button></center></div>
+                        <div class="col-md-6"><center><button type="button" class="btn btn-success">Create/Edit Commit</button></center></div>
+                    </div>
+                </div>
+            </div>
+        </div>

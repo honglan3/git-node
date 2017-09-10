@@ -1,28 +1,30 @@
 var express = require('express');
 var router = express.Router();
 var File = require("../models/File");
+var Commit = require("../models/Commit");
 var saveFile = require("../utils/saveFile");
 
 module.exports = {
     
-    "addFile" : (file,commitMessage,content,callback) => {
+    "addFile" : (file,callback) => {
+        var content = file['content'];
+        delete file['content'];
         var file = new File(file);
         file.save((err) => {
             if(err)
                 return callback(null,err);
             var commit = new Commit({
-                "message" : commitMessage,
-                "file" : file['_id'],
+                "message" : "Initial Commit",
+                "file" : file,
                 "user" : file['master_user'],
                 "parent_commit" : null,
-                "location" : saveFile(content,file['name'])
+                "content" : content
             });
             commit.save((err) => {
                 if(err)
                     return callback(null,err);
                 return callback(commit,null);
             });
-            return callback(file,err);
         })
     },
 
@@ -34,12 +36,19 @@ module.exports = {
         });
     },
 
-    "updateFile" : (file,callback) => {
-        File.findOneAndUpdate({ '_id' : file['_id']},file,(err,updatedFile) => {
+    "updateFile" : (fileId,file,callback) => {
+        File.findOneAndUpdate({ '_id' : fileId},file,(err,updatedFile) => {
             if(err)
                 return callback(null,err);
             return callback(updatedFile,null);
         });
-    }
+    },
 
+    "getFolderContents" : (fileId,callback) => {
+        File.find({ 'parent' : fileId},(err,files) => {
+            if(err)
+                return callback(null,err);
+            return callback(files,null);
+        });
+    }
 };
