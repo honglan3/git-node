@@ -30,6 +30,14 @@ router.delete('/:fileId',function(req,res,next){
   });
 });
 
+router.get('/:fileId',function(req,res,next){
+  controller.getFileById(req.params.fileId,(file,err) => {
+    if(err)
+      return res.json({'error' : err.toString() });
+    return res.json(file);
+  });
+});
+
 router.put('/:fileId',function(req,res,next){
     controller.updateFile(req.params.fileId,file,(file,err) => {
         if(err)
@@ -43,6 +51,14 @@ router.get('/:fileId/folderContents',function(req,res,next){
       if(err)
         return res.json({'error' : err.toString() });
       return res.json(files);
+  });
+});
+
+router.get('/project/:projectId/getStartingPoint',function(req,res,next){
+  controller.getStartingPoint(req.params.projectId,(file,err) => {
+    if(err)
+      return res.json({'error' : err.toString() });
+    return res.json(file);
   });
 });
 

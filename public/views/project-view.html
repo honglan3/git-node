@@ -7,11 +7,11 @@
 <div class="container">
         <br>
         <div class="row">
-            <div class="col-md-2">
-                <h4>Projects</h4>
+            <div class="col-md-6">
+                <h4>Project - '{{project.name}}'</h4>
             </div>
-            <div class="col-md-10">
-                <button type="button" class="btn btn-primary">Add New File To Folder</button>
+            <div class="col-md-6">
+                <button type="button" class="btn btn-primary" open-bootstrap-modal modal-id="addNewFileModal">Add New File/Folder</button>
             </div>
         </div>
         <br>
@@ -19,28 +19,57 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>File/Folder Name</th>
+                            <th>Created By</th>
                             <th>Created On</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody> 
                         <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
+                            <td><font color="blue" style="cursor:pointer;" ng-click="moveToParent()"><u>. .</u></font></td>
                         </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>Larry</td>
-                            <td>the Bird</td>
+                        <tr ng-repeat="file in files">
+                            <td ng-if="file.type == 'FOLDER'" ><font color="blue" style="cursor:pointer;" ng-click="openFolder(file['_id'])"><u>{{file.name}}</u></font></td>
+                            <td ng-if="file.type == 'FILE'" ><a ng-href="/views/#!/file/{{file['_id']}}"><u>{{file.name}}</u></a></td>
+                            <td><p>{{file['master_user']}}</p></td>
+                            <td>{{file['created_date']|timeago}}</td>
                         </tr>
                     </tbody>
                 </table>
         </div>
+</div>
+<div id="addNewFileModal" class="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New File/Folder</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form name="addNewFileForm" id="addNewFileForm" novalidate>
+            <div class="modal-body">
+                    <div class="form-group">
+                        <label for="projectName">File Name</label>
+                        <input type="text" name="fileName" id="fileName" ng-model="fileName" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <select class="form-control" name="type" ng-model="fileType" id="type">
+                                    <option value="" disabled selected>Select Type</option>
+                                    <option value="FILE">FILE</option>
+                                    <option value="FOLDER">FOLDER</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-click="addNewFile()" ng-disabled="addNewFileForm.$invalid">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </form>
+        </div>
     </div>
+</div>

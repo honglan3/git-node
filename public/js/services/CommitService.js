@@ -99,4 +99,18 @@ angular.module("gitApp.services")
         return defer.promise;
     }
 
+    this.mergeFilesByCommit = function(commit1,commit2,userId){
+        var defer = $q.defer();
+        $http.get('http://localhost:3000/commit/merge/'+commit1['_id']+'/'+commit2['_id']+'/'+userId) 
+            .then((data) => {
+                if(!data.data)
+                    defer.reject({'error' : 'Some error occurred'});
+                else if(data.data.error)
+                    defer.reject({'error' : data.data.error});
+                else
+                    defer.resolve(data.data);
+            });
+        return defer.promise;
+    }
+
 }])

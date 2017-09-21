@@ -20,6 +20,7 @@ module.exports = {
                 "parent_commit" : null,
                 "content" : content
             });
+            console.log(commit);
             commit.save((err) => {
                 if(err)
                     return callback(null,err);
@@ -49,6 +50,22 @@ module.exports = {
             if(err)
                 return callback(null,err);
             return callback(files,null);
+        });
+    },
+
+    "getStartingPoint" : (projectId,callback) => {
+        File.findOne({ 'project' : projectId , 'project_entry_point' : true},(err,file) => {
+            if(err)
+                return callback(null,err);
+            return callback(file,null);
+        });
+    },
+
+    "getFileById" : (fileId,callback) => {
+        File.findOne({ '_id' : fileId },(err,file) => {
+            if(err)
+                return callback(null,err);
+            return callback(file,null);
         });
     }
 };

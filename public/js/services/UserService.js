@@ -5,10 +5,13 @@ angular.module("gitApp.services")
         var defer = $q.defer();
         $http.get('http://localhost:3000/user/'+email)
             .then((data) => {
-                if(data.data.error || !data.data)
+                console.log(data);
+                if(!data.data || data.data['error'])
                     defer.reject({'error' : 'No such user exists'});
-                else
+                else{
                     defer.resolve(data.data);
+                    console.log("data");
+                }
             })
         return defer.promise;
     }
@@ -17,7 +20,7 @@ angular.module("gitApp.services")
         var defer = $q.defer();
         $http.post('http://localhost:3000/user/',angular.copy(user))
         .then((data) => {
-            if(data.data.error || !data.data)
+            if(!data.data || data.data.error)
                 defer.reject({'error' : 'No such user exists'});
             else
                 defer.resolve(data.data);

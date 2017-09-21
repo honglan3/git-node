@@ -15,6 +15,20 @@ angular.module("gitApp.services",[])
         return defer.promise;
     }
 
+    this.getProjectById = function(projectId){
+        var defer = $q.defer();
+        $http.get('http://localhost:3000/project/'+projectId) 
+            .then((data) => {
+                if(!data.data)
+                    defer.reject({'error' : 'Some error occurred'});
+                else if(data.data.error)
+                    defer.reject({'error' : data.data.error});
+                else
+                    defer.resolve(data.data);
+            });
+        return defer.promise;
+    }
+
     this.addNewProject = function(project){
         var defer = $q.defer();
         $http.post('http://localhost:3000/project',angular.copy(project))

@@ -1,6 +1,20 @@
 angular.module("gitApp.services")
 .service('FileService',['$http','$q',function($http,$q){
 
+    this.getFileById = function(fileId){
+        var defer = $q.defer();
+        $http.get('http://localhost:3000/file/'+fileId) 
+            .then((data) => {
+                if(!data.data)
+                    defer.reject({'error' : 'Some error occurred'});
+                else if(data.data.error)
+                    defer.reject({'error' : data.data.error});
+                else
+                    defer.resolve(data.data);
+            });
+        return defer.promise;
+    }
+
     this.getFolderContentsById = function(fileId){
         var defer = $q.defer();
         $http.get('http://localhost:3000/file/'+fileId+'/folderContents') 
@@ -46,6 +60,20 @@ angular.module("gitApp.services")
     this.updateFile = function(fileId,file){
         var defer = $q.defer();
         $http.put('http://localhost:3000/project/'+fileId,angular.copy(file))
+            .then((data) => {
+                if(!data.data)
+                    defer.reject({'error' : 'Some error occurred'});
+                else if(data.data.error)
+                    defer.reject({'error' : data.data.error});
+                else
+                    defer.resolve(data.data);
+            });
+        return defer.promise;
+    }
+
+    this.getProjectStartingPoint = function(projectId){
+        var defer = $q.defer();
+        $http.get('http://localhost:3000/file/project/'+projectId+'/getStartingPoint')
             .then((data) => {
                 if(!data.data)
                     defer.reject({'error' : 'Some error occurred'});

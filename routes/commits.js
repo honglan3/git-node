@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var controller = require("../controllers/CommitController");
+var mergeController = require("../controllers/MergeController");
 
 router.post('/',function(req,res,next){
     controller.addCommit(req.body,(commit,err) => {
@@ -57,5 +58,13 @@ router.get('/file/:fileId/user/:userId',function(req,res,next){
         return res.json(commits);
     });
 });
+
+router.get('/merge/:commitId1/:commitId2/:userId',function(req,res,next){
+    mergeController.mergeFiles(req.params.commitId1,req.params.commitId2,req.params.userId,(commit,err) => {
+        if(err)
+            return res.json({'error' : err.toString() });
+        return res.json(commit);
+    });
+})
 
 module.exports = router;
