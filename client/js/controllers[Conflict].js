@@ -32,20 +32,15 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
 .controller("AppCtrl",['$scope','Alertify',function($scope,Alertify){
 
 }])
-.controller('HomeCtrl',['$scope','$log','HomeService','UserService','Alertify',function($scope,$log,HomeService,UserService,Alertify){
+.controller('HomeCtrl',['$scope','$log','HomeService','Alertify',function($scope,$log,HomeService,Alertify){
 
     Alertify.set('notifier','position', 'top-center');
     
     $scope.projects = [];
 
-    $scope.user = {
-        userId : "59b17ea960571335d055d2c9",
-        email : 'bhambri.lakshay@gmail.com'
-    };
-    
     $scope.members = [];
 
-    HomeService.getProjectsByUserId($scope.user.userId).then((data) => {
+    HomeService.getProjectsByUserId().then((data) => {
         console.log($scope.projects);
         $scope.projects = data;
     });
@@ -69,30 +64,6 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
         })
     }
 
-    $scope.addCollaborator = () => {
-        var emailId = $scope.emailId;
-        $log.log("email = ",emailId);
-        if(emailId == $scope.user.email){
-            Alertify.error('You cannot add yourself !!');
-            return;
-        }
-        UserService.getUserByEmailId(emailId)
-        .then((data) => {
-            $log.log("data = ",data);
-            $log.log('success');
-            if($scope.members.map((item) => {return item['email'] }).indexOf(data['email']) >= 0)
-                Alertify.error('Member Already Added');
-            else{
-                $scope.members.push(data);
-                Alertify.success('Member Added Successfully');
-            }
-        })
-        .catch((error) => {
-            $log.log(error);
-            Alertify.set('notifier','position', 'top-center');
-            Alertify.error('No Such Registered User Exists');
-        });
-    }
 
     $scope.removeMember = function(index){
         if(index < 0 || index >= $scope.members.length)
@@ -101,9 +72,9 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     }
 
 }])
-.controller('FileCtrl',['$scope','$log','FileService','HomeService','$routeParams','Alertify',function($scope,$log,FileService,HomeService,$routeParams,Alertify){
+.controller('FileCtrl',['$scope','$log','FileService','HomeService','$routeParams','Alertify','DB',function($scope,$log,FileService,HomeService,$routeParams,Alertify,DB){
 
-    HomeService.getProjectById($routeParams.projectId).then((project) => {
+    HomeService.getProjectById().then((project) => {
         $scope.project = project;
         $scope.projectId = $routeParams.projectId;
         return FileService.getProjectStartingPoint($scope.projectId);
@@ -140,7 +111,7 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
             FileService.getFolderContentsById(fileId)
                 .then((data) => {
                     $log.log("file data = ",data);
-                    $scope.files = angular.copy(data);
+                    $scope.files = data;
                     $log.log("filed = ",$scope.files);
                 })
                 .catch((err) => {
@@ -149,6 +120,15 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
                     $scope.parent = null;
                 })
         }
+    }
+
+    $scope.syncToServer = function(){
+        DB.getDB().then((data) => {
+            $http.get('http://localhost:3000/commit/fetchDB/'+data.project['_id'])
+            .then((data) => {
+                DB.updateDB(data.data);
+            })
+        }); 
     }
 
     $scope.openFolder = function(fileId){
@@ -166,7 +146,7 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
             .then((data) => {
                 $log.log("file data = ",data);
                 $scope.parent.push(fileId);
-                $scope.files = angular.copy(data);
+                $scope.files = data;
                 $log.log("filed = ",$scope.files);
             }) 
             .catch((err) => {
@@ -200,19 +180,13 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
                 Alertify.success('New File/Folder Created');
             })
     }
-
 }])
-.controller('CommitCtrl',['$scope','$log','$routeParams','Alertify','FileService','CommitService',function($scope,$log,$routeParams,Alertify,FileService,CommitService){
+.controller('CommitCtrl',['$scope','$log','$routeParams','Alertify','FileService','CommitService','DB',function($scope,$log,$routeParams,Alertify,FileService,CommitService,DB){
 
     $scope.commits = [];
 
     $scope.file = null;
-
-    $scope.user = {
-        userId : "59b17ea960571335d055d2c9",
-        email : 'bhambri.lakshay@gmail.com'
-    };
-
+    
     $scope.existingCommitEditor = null;
     $scope.forkCommit = null;
 
@@ -237,7 +211,7 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     FileService.getFileById($routeParams.fileId)
     .then((data) => {
         $log.log("file = ",data);
-        $scope.file = angular.copy(data);
+        $scope.file = data;
         return CommitService.getCommitsByFileId($routeParams.fileId);
     })
     .catch((err) => {
@@ -245,25 +219,25 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     })
     .then((data) => {
         $log.log("commits = ",data);
-        $scope.commits = angular.copy(data);
+        $scope.commits = data;
     })
 
     $scope.aceLoaded = function(_editor) {
        $scope.existingCommitEditor = _editor;
        $scope.existingCommitEditor.getSession().on("change",function(e){
-          $scope.commit['content'] = angular.copy($scope.existingCommitEditor.getValue());
+          $scope.commit['content'] = $scope.existingCommitEditor.getValue();
        });
     };
 
     $scope.forkAceLoaded = function(_editor){
         $scope.forkEditor = _editor;
         $scope.forkEditor.getSession().on("change",function(e){
-           $scope.fork['content'] = angular.copy($scope.forkEditor.getValue());
+           $scope.fork['content'] = $scope.forkEditor.getValue();
         });
     }
 
     $scope.openFork = function(commitId){
-        $scope.fork = angular.copy($scope.commits.filter((item) => {
+        $scope.fork =   angular.copy($scope.commits.filter((item) => {
             return item['_id'] == commitId;
         })[0]);
         if($scope.fork['content'] != null)
@@ -275,9 +249,9 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
 
 
     $scope.openCommit = function(commitId){
-        $scope.commit = angular.copy($scope.commits.filter((item) => {
+        $scope.commit = $scope.commits.filter((item) => {
                         return item['_id'] == commitId;
-                    })[0]);
+                    })[0];
         if($scope.commit['content'] != null)
             $scope.existingCommitEditor.setValue($scope.commit['content'],1);
         else
@@ -287,11 +261,12 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
 
     $scope.forkCommit = function(){
         delete $scope.fork['_id'];
-        CommitService.addNewCommit(angular.copy($scope.fork))
+        $scope.fork['created_date'] = new Date();
+        CommitService.addNewCommit($scope.fork)
         .then((data) => {
             $log.log("data = ",data);
             Alertify.success('Forked Successfully');
-            $scope.commits.push(angular.copy(data));
+            $scope.commits.push(data);
         })
         .catch((error) => {
             $log.log("error = ",error);
@@ -300,7 +275,7 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     }
     
     $scope.saveCommit = function(){
-        CommitService.updateCommit($scope.commit['_id'],angular.copy($scope.commit))
+        CommitService.updateCommit($scope.commit['_id'],$scope.commit)
         .then((data) => {
             $log.log("data = ",data);
             Alertify.success('Commit Updated Successfully');
@@ -311,31 +286,15 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
         })
     }
 
-    $scope.merge = [];
-
-    $scope.addToMergeList = function(index){
-        if($scope.merge.length == 2 && $scope.merge.indexOf($scope.commits[index]) == -1){
-            $scope.checks[index] = false;
-            Alertify.error('Only two commits can be added for merge, try removing other and then add this');
-            return;
-        }
-        if($scope.merge.indexOf($scope.commits[index]) > -1){
-            $scope.merge.splice($scope.merge.indexOf($scope.commits[index]),1);
-        }
-        else{
-            $log.log("pushed to array");
-            $scope.merge.push($scope.commits[index]);
-        }
-    }
-
-    $scope.mergeItems = function(){
-        CommitService.mergeFilesByCommit($scope.merge[0],$scope.merge[1],$scope.user.userId)
-        .then((data) => {
-            $scope.commits.push(angular.copy(data));
+    $scope.pushChanges = function(){
+        DB.getDB().then((data) => {
+            $http.post('http://localhost:3000/commit/pushDB',data);
         })
-        .catch((error) => {
-            $log.log("error = ",error);
-            Alertify.error('Some Error Occurred');
+        .then((data) => {
+            if(data.data.success)
+                Alertify.success('Changes Pushed To Server');
+            else
+                Alertify.error('Some error occurred');
         })
     }
 

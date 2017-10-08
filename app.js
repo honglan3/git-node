@@ -22,6 +22,13 @@ mongoose.connect("mongodb://127.0.0.1:27017/gitdb",{server:{
   socketOptions : {keepAlive : 1}
 }});
 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -35,7 +42,6 @@ app.use('/user', users);
 app.use('/commit',commits);
 app.use('/file',files);
 app.use('/project',projects);
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

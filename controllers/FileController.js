@@ -46,7 +46,7 @@ module.exports = {
     },
 
     "getFolderContents" : (fileId,callback) => {
-        File.find({ 'parent' : fileId},(err,files) => {
+        File.find({ 'parent' : fileId}).populate('master_user').exec((err,files) => {
             if(err)
                 return callback(null,err);
             return callback(files,null);
@@ -54,7 +54,7 @@ module.exports = {
     },
 
     "getStartingPoint" : (projectId,callback) => {
-        File.findOne({ 'project' : projectId , 'project_entry_point' : true},(err,file) => {
+        File.findOne({ 'project' : projectId , 'project_entry_point' : true}).populate('master_user').exec((err,file) => {
             if(err)
                 return callback(null,err);
             return callback(file,null);
@@ -62,7 +62,7 @@ module.exports = {
     },
 
     "getFileById" : (fileId,callback) => {
-        File.findOne({ '_id' : fileId },(err,file) => {
+        File.findOne({ '_id' : fileId }).populate('master_user').exec((err,file) => {
             if(err)
                 return callback(null,err);
             return callback(file,null);

@@ -47,9 +47,9 @@ module.exports = {
     },
 
     "getProjectStart" : (projectId,callback) => {
-        File.findOne({'project' : projectId,'project_entry_point' : true},(err,file) => {
-            if(err)
-                return callback(null,err);
+        File.findOne({'project' : projectId,'project_entry_point' : true}).populate('master_user').exec((err,file) => {
+            if(err) 
+                return callback(null,err); 
             return callback(file,null);
         });
     }

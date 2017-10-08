@@ -22,8 +22,6 @@ module.exports = {
                 content2 = commit2['content'];
                 content1 = commit1['content'];
             }
-            console.log("content 1 = ",content1);
-            console.log("content 2  = ",content2);
             var mergeFile = diff3.diff.merge(content2.split(" "),content2.split(" "),content1.split(" "));
             console.log(util.inspect(mergeFile, false, null))
             console.log("mergeFile = ",mergeFile.result.join(" "));

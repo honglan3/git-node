@@ -7,11 +7,12 @@
 <div class="container">
         <br>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <h4>Project - '{{project.name}}'</h4>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <button type="button" class="btn btn-primary" open-bootstrap-modal modal-id="addNewFileModal">Add New File/Folder</button>
+                <button class="btn btn-success"><a ng-href="/commit/download/{{projectId}}" target="_blank" style="text-decoration:none;color:white;">Download Project For Offline Editing</a></button>
             </div>
         </div>
         <br>
@@ -31,7 +32,7 @@
                         <tr ng-repeat="file in files">
                             <td ng-if="file.type == 'FOLDER'" ><font color="blue" style="cursor:pointer;" ng-click="openFolder(file['_id'])"><u>{{file.name}}</u></font></td>
                             <td ng-if="file.type == 'FILE'" ><a ng-href="/views/#!/file/{{file['_id']}}"><u>{{file.name}}</u></a></td>
-                            <td><p>{{file['master_user']}}</p></td>
+                            <td><p>{{file['master_user'].email}}</p></td>
                             <td>{{file['created_date']|timeago}}</td>
                         </tr>
                     </tbody>

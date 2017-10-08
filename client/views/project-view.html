@@ -1,0 +1,42 @@
+<div class="container-fluid">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">Home</li>
+        <li class="breadcrumb-item active">Project</li>
+    </ol>
+</div>
+<div class="container">
+        <br>
+        <div class="row">
+            <div class="col-md-4">
+                <h4>Project - '{{project.name}}'</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-success" ng-click="syncToServer()">Sync Changes From Server</button>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>File/Folder Name</th>
+                            <th>Created By</th>
+                            <th>Created On</th>
+                        </tr>
+                    </thead>
+                    <tbody> 
+                        <tr>
+                            <td><font color="blue" style="cursor:pointer;" ng-click="moveToParent()"><u>. .</u></font></td>
+                        </tr>
+                        <tr ng-repeat="file in files">
+                            <td ng-if="file.type == 'FOLDER'" ><font color="blue" style="cursor:pointer;" ng-click="openFolder(file['_id'])"><u>{{file.name}}</u></font></td>
+                            <td ng-if="file.type == 'FILE'" ><a ng-href="/#!/file/{{file['_id']}}"><u>{{file.name}}</u></a></td>
+                            <td><p>{{file['master_user'].email}}</p></td>
+                            <td>{{file['created_date']|timeago}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+        </div>
+</div>

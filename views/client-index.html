@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html ng-app="clientApp">
+    <head>
+        <base href="/"/>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.min.js"></script>
+        <script>
+            angular.module('clientApp',[])
+            .controller('clientCtrl',['$scope','$http',function($scope,$http){
+
+                $scope.filesDB = null;
+                $scope.commitsDB = null;
+
+                $scope.files = [];
+
+                $scope.parent = ["-"];
+
+                $scope.projectName = null;
+
+                $http.get('conf.js')
+                    .then(function(data){
+                        $scope.projectName = data.data.projectName;
+                        return $http.get("filesDB.json");
+                    })
+                    .then(function(data){
+                        $scope.filesDB = angular.copy(data.data);
+                        return $http.get("commitsDB.json");
+                    })
+                    .then(function(data){
+                        $scope.commitsDB = angular.copy(data.data);
+                    })
+
+                $scope.openFolder = function(fileId){
+                    console.log("fileId = ",fileId);
+                    if(fileId == "-"){
+                        return $scope.filesDB.filter((item) => {
+                            return item['project_entry_point'];
+                        })[0];
+                    }
+                    $scope.parent.push(fileId);
+                    $scope.files = $scope.filesDB.filter((item) => {
+                        return item.parent == fileId;
+                    })
+                }
+
+
+
+                    
+                
+
+            }])
+        </script>
+    </head>
+    <body>
+        
+    </body>
+</html>

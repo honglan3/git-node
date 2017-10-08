@@ -13,35 +13,9 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <button class="btn btn-success" ng-disabled="!(merge.length == 2)" ng-click="mergeItems()">Merge Selected Files</button>
+            <button class="btn btn-success" ng-click="pushChanges()">Push Changes To Server</button>
         </div>
     </div>
-    <!-- <div class="row">
-        <div class="col-md-2">
-            <center><b>Filter By :</b></center>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="users">Users</label>
-                <select class="form-control" name="users" id="users" ng-model="filter.user">
-                    <option value="">All Users</option>
-                    <option value="{{user.userId}}">Only Me</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="from">From</label>
-                <input type="date" name="from" id="from" ng-model="filter.from" class="form-control">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="to">To</label>
-                <input type="date" name="to" id="to" ng-model="filter.to" class="form-control">
-            </div>
-        </div>
-    </div>-->
     <br>
     <div class="row">
         <div class="col-md-12">
@@ -54,7 +28,6 @@
                         <th>User</th>
                         <th>View File</th>
                         <th>Fork New Commit</th>
-                        <th>Select To Merge</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -65,7 +38,6 @@
                         <th>{{commit['user'].email}}</th>
                         <th><button class="btn btn-primary" ng-click="openCommit(commit['_id'])">View File</button></th>
                         <th><button class="btn btn-success" ng-click="openFork(commit['_id'])">Fork</button></th>
-                        <th><input type="checkbox" ng-model="checks[$index]" class="form-control" ng-change="addToMergeList($index)"></th>
                     </tr>
                 </tbody>
             </table>

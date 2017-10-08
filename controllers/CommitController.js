@@ -6,7 +6,7 @@ var File = require("../models/File");
 module.exports = {
     
     "getCommit" : (commitId,callback) => {
-        Commit.findById(commitId,(err,commit) => {
+        Commit.findById(commitId).populate('file').populate('user').exec((err,commit) => {
             if(err)
                 return callback(null,err);
             return callback(commit,err);
@@ -31,7 +31,7 @@ module.exports = {
     },
 
     "updateCommit" : (commitId,commit,callback) => {
-        Commit.findOneAndUpdate({ '_id' : commitId},commit,(err,commit) => {
+        Commit.findOneAndUpdate({ '_id' : commitId},commit).populate('file').populate('user').exec((err,commit) => {
             if(err)
                 return callback(null,err);
             return callback(commit,null);
@@ -43,7 +43,7 @@ module.exports = {
             var fileIds = files.map((item) => {
                 return item['_id'];
             });
-            Commit.find({ "file" : { id: { $in : fileId } } },(err,commits) => {
+            Commit.find({ "file" : { id: { $in : fileId } } }).populate('file').populate('user').exec((err,commits) => {
                 if(err)
                     return callback(null,err);
                 return callback(commits,null);
@@ -56,7 +56,7 @@ module.exports = {
             var fileIds = files.map((item) => {
                 return item['_id'];
             });
-            Commit.find({ "file" : { id: { $in : fileId } }, "user" : userId },(err,commits) => {
+            Commit.find({ "file" : { id: { $in : fileId } }, "user" : userId }).populate('file').populate('user').exec((err,commits) => {
                 if(err)
                     return callback(null,err);
                 return callback(commits,null);
@@ -66,7 +66,7 @@ module.exports = {
 
     
     "getCommitsByFileId" : (fileId,callback) => {
-        Commit.find({ "file" :  fileId },(err,commits) => {
+        Commit.find({ "file" :  fileId }).populate('file').populate('user').exec((err,commits) => {
             if(err)
                 return callback(null,err);
             return callback(commits,null);
@@ -74,7 +74,7 @@ module.exports = {
     },
 
     "getCommitsByFileIdAndUserId" : (fileId,userId,callback) => {
-        Commit.find({ "file" :  fileId , "user" : userId },(err,commits) => {
+        Commit.find({ "file" :  fileId , "user" : userId }).populate('file').populate('user').exec((err,commits) => {
             if(err)
                 return callback(null,err);
             return callback(commits,null);
