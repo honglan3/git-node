@@ -6,7 +6,6 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
             var list = attrs["list"];
             scope.$watch(list,function(list){
                 console.log("list = ",list);
-
                 for(var i = 0 ; i < list.length ; i++){
                     var tr = angular.element("<tr>");
                     var th = angular.element("<th scope='row'>").text(i+1);
@@ -29,23 +28,58 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
         }
     };
 })
-.controller("AppCtrl",['$scope','Alertify',function($scope,Alertify){
+.controller("AppCtrl",['$scope','Alertify','$log','$rootScope','UserService','$location',function($scope,Alertify,$log,$rootScope,UserService,$location){
+
+    $rootScope.$on('event:social-sign-in-success', function(event, userDetails){
+        $log.log("userDetails - ",userDetails);
+
+        UserService.authenticate(userDetails['provider'],userDetails['token'])
+        .then((data) => {
+            $log.log("JWT data = ",data);
+            window.localStorage.setItem('jwt',data.toString());
+            return UserService.getUserByEmailId(userDetails.email);
+        })
+        .then((data) => {
+            if(!data)
+                return UserService.addUser({
+                    "email" : userDetails.email,
+                    "pic_url" : userDetails.imageUrl,
+                    "account_id" : userDetails.uid,
+                    "account_type" : userDetails.provider
+                });
+            else
+                return data;
+        })
+        .then((data) => {
+            UserService.setUser(data);
+        })
+    }) 
+
+    $rootScope.$on('event:social-sign-out-success', function(event, logoutStatus){})
+    
+    $scope.$watch(UserService.loggedIn(),function(newValue,oldValue){
+        if(!newValue)
+            $location.path('login');
+    })
+
+    $scope.$on('login-success',function(){
+        $log.log($location.path());
+        if($location.path() == "/login")
+            $location.path('/');
+    })
 
 }])
-.controller('HomeCtrl',['$scope','$log','HomeService','UserService','Alertify',function($scope,$log,HomeService,UserService,Alertify){
+.controller('HomeCtrl',['$scope','$log','HomeService','UserService','Alertify','UserService',function($scope,$log,HomeService,UserService,Alertify,UserService){
 
     Alertify.set('notifier','position', 'top-center');
     
     $scope.projects = [];
 
-    $scope.user = {
-        userId : "59b17ea960571335d055d2c9",
-        email : 'bhambri.lakshay@gmail.com'
-    };
+    $scope.user = UserService.getUser();
     
     $scope.members = [];
 
-    HomeService.getProjectsByUserId($scope.user.userId).then((data) => {
+    HomeService.getProjectsByUserId($scope.user['_id']).then((data) => {
         console.log($scope.projects);
         $scope.projects = data;
     });
@@ -53,7 +87,7 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     $scope.addProject = () => {
         var project = {
             'name' : $scope.name,
-            'master_user' : $scope.user.userId,
+            'master_user' : $scope.user['_id'],
             'collaborators' : $scope.members.map((item) => {
                 return item['_id'];
             })
@@ -80,17 +114,15 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
         .then((data) => {
             $log.log("data = ",data);
             $log.log('success');
-            if($scope.members.map((item) => {return item['email'] }).indexOf(data['email']) >= 0)
+            if(data == null){
+                Alertify.error('No Such Registered User Exists');
+            }
+            else if($scope.members.map((item) => {return item['email'] }).indexOf(data['email']) >= 0)
                 Alertify.error('Member Already Added');
             else{
                 $scope.members.push(data);
                 Alertify.success('Member Added Successfully');
             }
-        })
-        .catch((error) => {
-            $log.log(error);
-            Alertify.set('notifier','position', 'top-center');
-            Alertify.error('No Such Registered User Exists');
         });
     }
 
@@ -101,7 +133,9 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     }
 
 }])
-.controller('FileCtrl',['$scope','$log','FileService','HomeService','$routeParams','Alertify',function($scope,$log,FileService,HomeService,$routeParams,Alertify){
+.controller('FileCtrl',['$scope','$log','FileService','HomeService','$routeParams','Alertify','UserService',function($scope,$log,FileService,HomeService,$routeParams,Alertify,UserService){
+
+    $scope.user = UserService.getUser();
 
     HomeService.getProjectById($routeParams.projectId).then((project) => {
         $scope.project = project;
@@ -117,11 +151,6 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     $scope.files = [];
 
     $scope.parent = ["-"];
-
-    $scope.user = {
-        userId : "59b17ea960571335d055d2c9",
-        email : 'bhambri.lakshay@gmail.com'
-    };
 
     $scope.moveToParent = function(){
         if($scope.parent.length > 1){
@@ -187,7 +216,7 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
             'name' : $scope.fileName,
             'type' : $scope.fileType,
             'content' : null,
-            'master_user' : $scope.user.userId,
+            'master_user' : $scope.user['_id'],
             'project' : $scope.projectId,
             'parent' : $scope.parent[$scope.parent.length-1],
             'project_entry_point' : false
@@ -202,19 +231,16 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     }
 
 }])
-.controller('CommitCtrl',['$scope','$log','$routeParams','Alertify','FileService','CommitService',function($scope,$log,$routeParams,Alertify,FileService,CommitService){
+.controller('CommitCtrl',['$scope','$log','$routeParams','Alertify','FileService','CommitService','UserService',function($scope,$log,$routeParams,Alertify,FileService,CommitService,UserService){
 
     $scope.commits = [];
 
     $scope.file = null;
 
-    $scope.user = {
-        userId : "59b17ea960571335d055d2c9",
-        email : 'bhambri.lakshay@gmail.com'
-    };
-
     $scope.existingCommitEditor = null;
     $scope.forkCommit = null;
+
+    $scope.user = UserService.getUser();
 
     $scope.filter = {
         'user' : null,
@@ -329,7 +355,7 @@ angular.module("gitApp.controllers",["ui.ace","Alertify"])
     }
 
     $scope.mergeItems = function(){
-        CommitService.mergeFilesByCommit($scope.merge[0],$scope.merge[1],$scope.user.userId)
+        CommitService.mergeFilesByCommit($scope.merge[0],$scope.merge[1],$scope.user['_id'])
         .then((data) => {
             $scope.commits.push(angular.copy(data));
         })

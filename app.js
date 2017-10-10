@@ -8,11 +8,14 @@ var mongoose = require("mongoose");
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+console.log("users = ",users);
 var commits = require('./routes/commits');
 var files = require('./routes/files');
 var projects = require('./routes/projects');
+var authent = require('./routes/auth');
+console.log("auth = ",authent);
 
-var app = express();
+var app = express(),auth = require('express-jwt-token'), router = express.Router();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,12 +40,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+router.all('/commit/*', auth.jwtAuthProtected);
+router.all('/file/*', auth.jwtAuthProtected);
+router.all('/project/*', auth.jwtAuthProtected);
+router.all('/user/*',auth.jwtAuthProtected);
+ 
+app.use('/',router);
 app.use('/', index);
 app.use('/user', users);
 app.use('/commit',commits);
 app.use('/file',files);
 app.use('/project',projects);
-
+app.use('/auth',authent);
+ 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

@@ -9,7 +9,7 @@ var UserSchema = new Schema({
     },
     "account_type" : {
         type : String,
-        enum : ['GOOGLE','FACEBOOK','LINKEDIN'],
+        enum : ['google','facebook','linkedin'],
         required : true
     },
     "account_id" : {
